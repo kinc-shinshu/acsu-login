@@ -48,6 +48,7 @@ class _LoginPageState extends State<LoginPage> {
                     hintText: "大学のメールアドレス",
                     prefixIcon: Icon(Icons.person)
                 ),
+                keyboardType: TextInputType.emailAddress,
                 validator: (v) {
                   return v
                       .trim()
