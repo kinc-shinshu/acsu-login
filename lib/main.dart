@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
 
@@ -26,6 +27,32 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _uidController = new TextEditingController();
   TextEditingController _pwdController = new TextEditingController();
   GlobalKey _formKey= new GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _uidController.text = prefs.getString('uid') ?? "";
+      _pwdController.text = prefs.getString('pwd') ?? "";
+    });
+  }
+
+  _saveUserData(uid, pwd) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('uid', uid);
+    prefs.setString('pwd', pwd);
+  }
+
+  _deleteUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('uid');
+    prefs.remove('pwd');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +132,11 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () {
                           if((_formKey.currentState as FormState).validate()){
                             postLoginData(_uidController.text, _pwdController.text);
+                            if (_checkboxSelected == true){
+                              _saveUserData(_uidController.text, _pwdController.text);
+                            } else {
+                              _deleteUserData();
+                            }
                           }
                         },
                       ),
