@@ -26,6 +26,8 @@ dependencies:
 
   # http lib
   dio: ^2.1.3
+  # storage lib
+  shared_preferences: ^0.5.2
 
 dev_dependencies:
   flutter_test:
