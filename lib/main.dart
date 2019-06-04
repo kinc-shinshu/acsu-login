@@ -35,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
     _loadUserData();
   }
 
+  // 保存されたログイン情報の有無を確認する関数、ない場合は空文字列
   _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -43,12 +44,14 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+  // ログイン情報を保存する
   _saveUserData(uid, pwd) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('uid', uid);
     prefs.setString('pwd', pwd);
   }
 
+  //　以前保存された情報がちゃんと削除されるように
   _deleteUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('uid');
@@ -57,7 +60,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
         title: Text("大学Wifiに接続しよう"),
