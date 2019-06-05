@@ -17,19 +17,40 @@ class LoadingPage extends StatefulWidget {
 
 class _LoadingPageState extends State<LoadingPage> {
 
+  String loginStatus = "ログイン中";
+
+  @override
+  void initState() {
+    super.initState();
+    postLoginData(widget.uid, widget.pwd).then(
+        (String s) => setState(() {
+          loginStatus = s;
+        })
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: AppBar(
         title: Text(
-          'test'
+          ''
         ),
       ),
       body: Center(
         child: Column(
           children: <Widget>[
-            Text(widget.uid),
-            Text(widget.pwd)
+            Text(loginStatus),
+            FlatButton(
+              child: Text(
+                "試し直す"
+              ),
+              onPressed: () => postLoginData(widget.uid, widget.pwd).then(
+                      (String s) => setState(() {
+                    loginStatus = s;
+                  })
+              ),
+            )
           ],
         ),
       ),
