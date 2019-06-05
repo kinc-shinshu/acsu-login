@@ -36,24 +36,23 @@ class _LoadingPageState extends State<LoadingPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: AppBar(
-        title: Text(
-          ''
-        ),
-      ),
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            Text(loginStatus),
-            FlatButton(
-              child: Text(
-                "試し直す"
-              ),
-              onPressed: () => reloadAndSetLoginStatus(widget.uid, widget.pwd),
+      appBar: new AppBar(title: new Text("ログインページ"), backgroundColor: Colors.deepOrange),
+        body: new Container(
+            child: new Center(
+                child: new Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      new Text(loginStatus, style: new TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold)),
+                      new Padding(padding: new EdgeInsets.all(50.0)),
+                      new RaisedButton(
+                          child: new Text("reload", style: new TextStyle(color: Colors.white, fontStyle: FontStyle.italic, fontSize: 50.0)),
+                          color: Colors.red,
+                          onPressed: () => reloadAndSetLoginStatus(widget.uid, widget.pwd)
+                      )
+                    ]
+                )
             )
-          ],
-        ),
-      ),
+        )
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as prefix0;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'helper.dart';
 import 'loading_page.dart';
 
 void main() => runApp(MyApp());
@@ -134,8 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                             textColor: Colors.white,
                             onPressed: () {
                               if((_formKey.currentState as FormState).validate()){
-                                Navigator.push(
-                                    context,
+                                Navigator.of(context).push(
                                     new MaterialPageRoute(
                                         builder: (BuildContext context) =>
                                         new LoadingPage(uid: _uidController.text, pwd: _pwdController.text)));
