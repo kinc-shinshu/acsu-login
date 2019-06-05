@@ -22,8 +22,12 @@ class _LoadingPageState extends State<LoadingPage> {
   @override
   void initState() {
     super.initState();
-    postLoginData(widget.uid, widget.pwd).then(
-        (String s) => setState(() {
+    reloadAndSetLoginStatus(widget.uid, widget.pwd);
+  }
+
+  void reloadAndSetLoginStatus(uid, pwd) {
+    postLoginData(uid, pwd).then(
+            (String s) => setState(() {
           loginStatus = s;
         })
     );
@@ -45,11 +49,7 @@ class _LoadingPageState extends State<LoadingPage> {
               child: Text(
                 "試し直す"
               ),
-              onPressed: () => postLoginData(widget.uid, widget.pwd).then(
-                      (String s) => setState(() {
-                    loginStatus = s;
-                  })
-              ),
+              onPressed: () => reloadAndSetLoginStatus(widget.uid, widget.pwd),
             )
           ],
         ),
