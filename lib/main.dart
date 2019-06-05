@@ -1,7 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
+import 'helper.dart';
+import 'loading_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginPage(),
+      home: LoginPage()
     );
   }
 }
@@ -134,7 +134,11 @@ class _LoginPageState extends State<LoginPage> {
                             textColor: Colors.white,
                             onPressed: () {
                               if((_formKey.currentState as FormState).validate()){
-                                postLoginData(_uidController.text, _pwdController.text);
+                                Navigator.push(
+                                    context,
+                                    new MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                        new LoadingPage(uid: _uidController.text, pwd: _pwdController.text)));
                                 if (_checkboxSelected == true){
                                   _saveUserData(_uidController.text, _pwdController.text);
                                 } else {
@@ -152,18 +156,5 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-  }
-}
-
-void postLoginData(uid, pwd) async {
-  try {
-    // contentTypeがデフォルトだとjsonだから一応変更した
-    // jsonでもログインできるかもしれないからあとで試す
-    Dio dio = new Dio();
-    dio.options.contentType = ContentType.parse("application/x-www-form-urlencoded");
-    Response response = await dio.post("https://login.shinshu-u.ac.jp/cgi-bin/Login.cgi", data: {"uid": uid, "pwd": pwd});
-    print(response);
-  } catch (e) {
-    print(e);
   }
 }
