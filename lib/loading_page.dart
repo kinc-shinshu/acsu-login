@@ -18,19 +18,40 @@ class LoadingPage extends StatefulWidget {
 class _LoadingPageState extends State<LoadingPage> {
 
   String loginStatus = "ログイン中";
+  bool isButtonDisabled = false;
+  Color isButtonColor = Colors.grey;
 
   @override
   void initState() {
     super.initState();
-    reloadAndSetLoginStatus(widget.uid, widget.pwd);
+    postAndSetLoginStatus(widget.uid, widget.pwd);
   }
 
-  void reloadAndSetLoginStatus(uid, pwd) {
+  void setLoginAndButtonStatus(responseData) {
+    setState(() {
+      loginStatus = responseData;
+    });
+    if (responseData == "ログインに失敗しました") {
+      setState(() {
+        isButtonDisabled = false;
+        isButtonColor = Colors.red;
+      });
+    }
+  }
+
+  void postAndSetLoginStatus(uid, pwd) {
     postLoginData(uid, pwd).then(
-            (String s) => setState(() {
-          loginStatus = s;
-        })
+            (String s) => setLoginAndButtonStatus(s)
     );
+  }
+
+  void reloadButton(uid, pwd) {
+    setState(() {
+      isButtonDisabled = true;
+      isButtonColor = Colors.grey;
+      loginStatus = "ログイン中";
+    });
+    postAndSetLoginStatus(uid, pwd);
   }
 
   @override
@@ -46,8 +67,8 @@ class _LoadingPageState extends State<LoadingPage> {
                       new Padding(padding: new EdgeInsets.all(50.0)),
                       new RaisedButton(
                           child: new Text("reload", style: new TextStyle(color: Colors.white, fontStyle: FontStyle.italic, fontSize: 50.0)),
-                          color: Colors.red,
-                          onPressed: () => reloadAndSetLoginStatus(widget.uid, widget.pwd)
+                          color: isButtonColor,
+                          onPressed: isButtonDisabled ? null : () => reloadButton(widget.uid, widget.pwd)
                       )
                     ]
                 )

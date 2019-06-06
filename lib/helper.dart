@@ -11,13 +11,13 @@ Future<String> postLoginData(uid, pwd) async {
     dio.options.contentType = ContentType.parse("application/x-www-form-urlencoded");
     Response response = await dio.post("https://login.shinshu-u.ac.jp/cgi-bin/Login.cgi", data: {"uid": uid, "pwd": pwd});
     if (response.data.toString().indexOf('Login Success') >= 1){
-      loginStatus = "学校のWiFiを存分に楽しみましょう";
+      loginStatus = "学校を楽しみましょう";
     } else {
-      loginStatus = "ログインに失敗しました。";
+      loginStatus = "ログインに失敗しました";
     }
     return loginStatus;
   } catch (e) {
-    loginStatus = "ログインに失敗しました。";
+    loginStatus = "ログインに失敗しました";
     return loginStatus;
   }
 }
