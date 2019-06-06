@@ -36,6 +36,11 @@ class _LoadingPageState extends State<LoadingPage> {
         isButtonDisabled = false;
         isButtonColor = Colors.red;
       });
+    } else {
+      setState(() {
+        isButtonDisabled = true;
+        isButtonColor = Colors.grey;
+      });
     }
   }
 
