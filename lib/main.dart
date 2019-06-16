@@ -8,12 +8,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: LoginPage()
-    );
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: LoginPage());
   }
 }
 
@@ -27,29 +26,30 @@ class _LoginPageState extends State<LoginPage> {
   bool _autoLoginCheckboxSelected = false;
   TextEditingController _uidController = new TextEditingController();
   TextEditingController _pwdController = new TextEditingController();
-  GlobalKey _formKey= new GlobalKey<FormState>();
+  GlobalKey _formKey = new GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    _loadUserData()
-        .then((result){
+    _loadUserData().then((result) {
       if (_autoLoginCheckboxSelected == true) {
         Future(() {
-          goToLoadingPage(_uidController.text, _pwdController.text, _saveCheckboxSelected, _autoLoginCheckboxSelected);
+          goToLoadingPage(_uidController.text, _pwdController.text,
+              _saveCheckboxSelected, _autoLoginCheckboxSelected);
         });
       }
     });
   }
 
   // 画面偏移関数
-  void goToLoadingPage(_uidControllerText, _pwdControllerText, _saveCheckboxSelected, _autoLoginCheckboxSelected) {
-    Navigator.of(context).push(
-        new MaterialPageRoute(
-            builder: (BuildContext context) =>
+  void goToLoadingPage(_uidControllerText, _pwdControllerText,
+      _saveCheckboxSelected, _autoLoginCheckboxSelected) {
+    Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) =>
             new LoadingPage(uid: _uidControllerText, pwd: _pwdControllerText)));
-    if (_saveCheckboxSelected == true){
-      _saveUserData(_uidControllerText, _pwdControllerText, _saveCheckboxSelected, _autoLoginCheckboxSelected);
+    if (_saveCheckboxSelected == true) {
+      _saveUserData(_uidControllerText, _pwdControllerText,
+          _saveCheckboxSelected, _autoLoginCheckboxSelected);
     } else {
       _deleteUserData();
     }
@@ -100,27 +100,20 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: InputDecoration(
                         labelText: "学籍番号",
                         hintText: "信州大学の学籍番号",
-                        prefixIcon: Icon(Icons.person)
-                    ),
+                        prefixIcon: Icon(Icons.person)),
                     keyboardType: TextInputType.emailAddress,
                     validator: (v) {
-                      return v
-                          .trim()
-                          .length > 0 ? null : "学籍番号入れてくれよ";
-                    }
-                ),
+                      return v.trim().length > 0 ? null : "学籍番号入れてくれよ";
+                    }),
                 TextFormField(
                   controller: _pwdController,
                   decoration: InputDecoration(
                       labelText: "パスワード",
                       hintText: "流石に覚えてるよね？",
-                      prefixIcon: Icon(Icons.lock)
-                  ),
+                      prefixIcon: Icon(Icons.lock)),
                   obscureText: true,
                   validator: (v) {
-                    return v
-                        .trim()
-                        .length > 0 ? null : "パスワードを入れてくれよな";
+                    return v.trim().length > 0 ? null : "パスワードを入れてくれよな";
                   },
                 ),
                 Padding(
@@ -167,23 +160,24 @@ class _LoginPageState extends State<LoginPage> {
                           child: RaisedButton(
                             padding: EdgeInsets.all(15.0),
                             child: Text("ログインする"),
-                            color: Theme
-                                .of(context)
-                                .primaryColor,
+                            color: Theme.of(context).primaryColor,
                             textColor: Colors.white,
                             onPressed: () {
-                              if((_formKey.currentState as FormState).validate()){
-                                goToLoadingPage(_uidController.text, _pwdController.text, _saveCheckboxSelected, _autoLoginCheckboxSelected);
+                              if ((_formKey.currentState as FormState)
+                                  .validate()) {
+                                goToLoadingPage(
+                                    _uidController.text,
+                                    _pwdController.text,
+                                    _saveCheckboxSelected,
+                                    _autoLoginCheckboxSelected);
                               }
                             },
                           ),
                         ),
                       ],
-                    )
-                )
+                    ))
               ],
-            )
-        ),
+            )),
       ),
     );
   }
