@@ -23,7 +23,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool _checkboxSelected = true;
+  bool _saveCheckboxSelected = false;
+  bool _autoLoginCheckboxSelected = false;
   TextEditingController _uidController = new TextEditingController();
   TextEditingController _pwdController = new TextEditingController();
   GlobalKey _formKey= new GlobalKey<FormState>();
@@ -31,7 +32,27 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadUserData()
+        .then((result){
+      if (_autoLoginCheckboxSelected == true) {
+        Future(() {
+          goToLoadingPage(_uidController.text, _pwdController.text, _saveCheckboxSelected, _autoLoginCheckboxSelected);
+        });
+      }
+    });
+  }
+
+  // 画面偏移関数
+  void goToLoadingPage(_uidControllerText, _pwdControllerText, _saveCheckboxSelected, _autoLoginCheckboxSelected) {
+    Navigator.of(context).push(
+        new MaterialPageRoute(
+            builder: (BuildContext context) =>
+            new LoadingPage(uid: _uidControllerText, pwd: _pwdControllerText)));
+    if (_saveCheckboxSelected == true){
+      _saveUserData(_uidControllerText, _pwdControllerText, _saveCheckboxSelected, _autoLoginCheckboxSelected);
+    } else {
+      _deleteUserData();
+    }
   }
 
   // 保存されたログイン情報の有無を確認する関数、ない場合は空文字列
@@ -40,14 +61,18 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _uidController.text = prefs.getString('uid') ?? "";
       _pwdController.text = prefs.getString('pwd') ?? "";
+      _saveCheckboxSelected = prefs.getBool('is_save_data') ?? false;
+      _autoLoginCheckboxSelected = prefs.getBool('is_auto_login') ?? false;
     });
   }
 
   // ログイン情報を保存する
-  _saveUserData(uid, pwd) async {
+  _saveUserData(uid, pwd, isSave, isAutoLogin) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('uid', uid);
     prefs.setString('pwd', pwd);
+    prefs.setBool('is_save_data', isSave);
+    prefs.setBool('is_auto_login', isAutoLogin);
   }
 
   //　以前保存された情報がちゃんと削除されるように
@@ -100,21 +125,36 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 5.0),
-                  child: Row(
+                  child: new Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Expanded(
-                        child: CheckboxListTile(
-                          title: Text("ログイン情報を保存しますか？"),
-                          value: _checkboxSelected,
-                          activeColor: Colors.blue,
-                          onChanged: (e){
-                            setState(() {
-                              _checkboxSelected = e;
-                            });
-                          },
-                          // ここでcheckboxを左側に置いてる
-                          controlAffinity: ListTileControlAffinity.leading,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Checkbox(
+                            value: _saveCheckboxSelected,
+                            onChanged: (bool value) {
+                              setState(() {
+                                _saveCheckboxSelected = value;
+                              });
+                            },
+                          ),
+                          Text("アカウント情報保存")
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Checkbox(
+                            value: _autoLoginCheckboxSelected,
+                            onChanged: (bool value) {
+                              setState(() {
+                                _autoLoginCheckboxSelected = value;
+                              });
+                            },
+                          ),
+                          Text("自動ログイン")
+                        ],
                       ),
                     ],
                   ),
@@ -133,15 +173,7 @@ class _LoginPageState extends State<LoginPage> {
                             textColor: Colors.white,
                             onPressed: () {
                               if((_formKey.currentState as FormState).validate()){
-                                Navigator.of(context).push(
-                                    new MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                        new LoadingPage(uid: _uidController.text, pwd: _pwdController.text)));
-                                if (_checkboxSelected == true){
-                                  _saveUserData(_uidController.text, _pwdController.text);
-                                } else {
-                                  _deleteUserData();
-                                }
+                                goToLoadingPage(_uidController.text, _pwdController.text, _saveCheckboxSelected, _autoLoginCheckboxSelected);
                               }
                             },
                           ),
