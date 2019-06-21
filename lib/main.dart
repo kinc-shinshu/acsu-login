@@ -8,12 +8,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: LoginPage()
-    );
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: LoginPage());
   }
 }
 
@@ -23,15 +22,37 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool _checkboxSelected = true;
+  bool _saveCheckboxSelected = false;
+  bool _autoLoginCheckboxSelected = false;
   TextEditingController _uidController = new TextEditingController();
   TextEditingController _pwdController = new TextEditingController();
-  GlobalKey _formKey= new GlobalKey<FormState>();
+  GlobalKey _formKey = new GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadUserData().then((result) {
+      if (_autoLoginCheckboxSelected == true) {
+        Future(() {
+          goToLoadingPage(_uidController.text, _pwdController.text,
+              _saveCheckboxSelected, _autoLoginCheckboxSelected);
+        });
+      }
+    });
+  }
+
+  // 画面偏移関数
+  void goToLoadingPage(_uidControllerText, _pwdControllerText,
+      _saveCheckboxSelected, _autoLoginCheckboxSelected) {
+    Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) =>
+            new LoadingPage(uid: _uidControllerText, pwd: _pwdControllerText)));
+    if (_saveCheckboxSelected == true) {
+      _saveUserData(_uidControllerText, _pwdControllerText,
+          _saveCheckboxSelected, _autoLoginCheckboxSelected);
+    } else {
+      _deleteUserData();
+    }
   }
 
   // 保存されたログイン情報の有無を確認する関数、ない場合は空文字列
@@ -40,14 +61,18 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _uidController.text = prefs.getString('uid') ?? "";
       _pwdController.text = prefs.getString('pwd') ?? "";
+      _saveCheckboxSelected = prefs.getBool('is_save_data') ?? false;
+      _autoLoginCheckboxSelected = prefs.getBool('is_auto_login') ?? false;
     });
   }
 
   // ログイン情報を保存する
-  _saveUserData(uid, pwd) async {
+  _saveUserData(uid, pwd, isSave, isAutoLogin) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('uid', uid);
     prefs.setString('pwd', pwd);
+    prefs.setBool('is_save_data', isSave);
+    prefs.setBool('is_auto_login', isAutoLogin);
   }
 
   //　以前保存された情報がちゃんと削除されるように
@@ -75,46 +100,54 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: InputDecoration(
                         labelText: "学籍番号",
                         hintText: "信州大学の学籍番号",
-                        prefixIcon: Icon(Icons.person)
-                    ),
+                        prefixIcon: Icon(Icons.person)),
                     keyboardType: TextInputType.emailAddress,
                     validator: (v) {
-                      return v
-                          .trim()
-                          .length > 0 ? null : "学籍番号入れてくれよ";
-                    }
-                ),
+                      return v.trim().length > 0 ? null : "学籍番号入れてくれよ";
+                    }),
                 TextFormField(
                   controller: _pwdController,
                   decoration: InputDecoration(
                       labelText: "パスワード",
                       hintText: "流石に覚えてるよね？",
-                      prefixIcon: Icon(Icons.lock)
-                  ),
+                      prefixIcon: Icon(Icons.lock)),
                   obscureText: true,
                   validator: (v) {
-                    return v
-                        .trim()
-                        .length > 0 ? null : "パスワードを入れてくれよな";
+                    return v.trim().length > 0 ? null : "パスワードを入れてくれよな";
                   },
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 5.0),
-                  child: Row(
+                  child: new Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Expanded(
-                        child: CheckboxListTile(
-                          title: Text("ログイン情報を保存しますか？"),
-                          value: _checkboxSelected,
-                          activeColor: Colors.blue,
-                          onChanged: (e){
-                            setState(() {
-                              _checkboxSelected = e;
-                            });
-                          },
-                          // ここでcheckboxを左側に置いてる
-                          controlAffinity: ListTileControlAffinity.leading,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Checkbox(
+                            value: _saveCheckboxSelected,
+                            onChanged: (bool value) {
+                              setState(() {
+                                _saveCheckboxSelected = value;
+                              });
+                            },
+                          ),
+                          Text("アカウント情報保存")
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Checkbox(
+                            value: _autoLoginCheckboxSelected,
+                            onChanged: (bool value) {
+                              setState(() {
+                                _autoLoginCheckboxSelected = value;
+                              });
+                            },
+                          ),
+                          Text("自動ログイン")
+                        ],
                       ),
                     ],
                   ),
@@ -127,31 +160,24 @@ class _LoginPageState extends State<LoginPage> {
                           child: RaisedButton(
                             padding: EdgeInsets.all(15.0),
                             child: Text("ログインする"),
-                            color: Theme
-                                .of(context)
-                                .primaryColor,
+                            color: Theme.of(context).primaryColor,
                             textColor: Colors.white,
                             onPressed: () {
-                              if((_formKey.currentState as FormState).validate()){
-                                Navigator.of(context).push(
-                                    new MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                        new LoadingPage(uid: _uidController.text, pwd: _pwdController.text)));
-                                if (_checkboxSelected == true){
-                                  _saveUserData(_uidController.text, _pwdController.text);
-                                } else {
-                                  _deleteUserData();
-                                }
+                              if ((_formKey.currentState as FormState)
+                                  .validate()) {
+                                goToLoadingPage(
+                                    _uidController.text,
+                                    _pwdController.text,
+                                    _saveCheckboxSelected,
+                                    _autoLoginCheckboxSelected);
                               }
                             },
                           ),
                         ),
                       ],
-                    )
-                )
+                    ))
               ],
-            )
-        ),
+            )),
       ),
     );
   }
